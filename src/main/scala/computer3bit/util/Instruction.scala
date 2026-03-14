@@ -9,6 +9,9 @@ enum Instruction(private val code: Int):
   case out extends Instruction(5)
   case ydv extends Instruction(6)
   case zdv extends Instruction(7)
+  
+  def toBit3(): Bit3 =
+    Bit3(this.code)
 
 object Instruction:
   def fromBit3(bit: Bit3): Instruction =

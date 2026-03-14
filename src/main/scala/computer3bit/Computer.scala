@@ -33,7 +33,9 @@ class Computer(var X: Register, var Y: Register, var Z: Register, val program: P
                  * then writes that value to the Y register.
                  */
                 val operand = program.readOperand(IP).combo(X, Y, Z)
-                val result = operand % 8
+                var result = operand % 8
+                if result < 0 then
+                    result += 8 // Ensure result is non-negative
                 Y.write(result)
             }
             case Instruction.jnz => {
@@ -57,7 +59,9 @@ class Computer(var X: Register, var Y: Register, var Z: Register, val program: P
                 /* The out instruction (opcode 5) calculates the value of its combo operand modulo 8, then outputs that value.
                  */
                 val operand = program.readOperand(IP).combo(X, Y, Z)
-                val outputValue = operand % 8
+                var outputValue = operand % 8
+                if(outputValue < 0) then
+                    outputValue += 8 // Ensure output is non-negative
                 output = output :+ outputValue // Append to output list
             }
             case Instruction.ydv => {
@@ -82,5 +86,9 @@ class Computer(var X: Register, var Y: Register, var Z: Register, val program: P
     private def divide_instr(): Int =
         val numerator = X.read()
         val operand = program.readOperand(IP).combo(X, Y, Z)
-        val denominator = 1 << operand // 2^operand
-        numerator / denominator // Integer division (truncated)
+        if operand >= 0 then
+            val denominator = 1 << operand // 2^operand
+            numerator / denominator // Integer division (truncated)
+        else
+            val denominator = 1 << (-operand) // 2^(-operand)
+            numerator * denominator // Integer multiplication (negative exponent means multiply)
